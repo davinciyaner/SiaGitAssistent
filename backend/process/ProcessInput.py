@@ -39,17 +39,12 @@ def process_input(text, auto_confirm=True):
         return "Diesen Befehl kenne ich nicht"
 
 
-def set_remote_with_token(path, repo_url):
-    from backend.auth.token_store import ACCESS_TOKEN
-
-    url = repo_url.replace(
-        "https://",
-        f"https://{ACCESS_TOKEN}@"
-    )
-
+def set_remote_with_token(path, remote_url, token):
+    token_url = remote_url.replace("https://", f"https://{token}@")
     subprocess.run(
-        ["git", "remote", "set-url", "origin", url],
-        cwd=path
+        ["git", "remote", "set-url", "origin", token_url],
+        cwd=path,
+        check=True
     )
 
 def confirm_action(message, auto_confirm=True):
@@ -77,33 +72,22 @@ def handle_init(path, auto_confirm=True):
         return "Git-Repo erfolgreich initialisiert"
     return "Fehler beim Initialisieren: " + result.stderr
 
-def handle_init_full(path, remote_url=None, auto_confirm=True):
-    global ACCESS_TOKEN  # muss den OAuth Token kennen
+def handle_init_full(path, remote_url=None):
+    global ACCESS_TOKEN
 
-    # 1. Git init
-    init_result = handle_init(path, auto_confirm)
-
-    # 2. .gitignore
+    init_result = handle_init(path)
     gitignore_result = handle_gitignore(path)
-
-    # 3. Alle Dateien adden
     add_result = handle_add(path)
-
-    # 4. Erster Commit
     commit_result = handle_commit(path)
 
     push_result = ""
     remote_add_result = ""
 
-    if remote_url:
-        # Wenn Access Token existiert, Remote URL mit Token setzen
-        if ACCESS_TOKEN:
-            token_url = remote_url.replace("https://", f"https://{ACCESS_TOKEN}@")
-            remote_add_result = handle_remote_add(path, token_url)
-            push_result = handle_push(path, auto_confirm)
-        else:
-            # Fallback, normal Remote setzen (fragt nach Username/Password)
-            remote_add_result = handle_remote_add(path, remote_url)
+    if remote_url and ACCESS_TOKEN:
+        # Remote URL mit Token setzen
+        set_remote_with_token(path, remote_url, ACCESS_TOKEN)
+        push_result = handle_push(path)
+        remote_add_result = f"Remote mit Token gesetzt: {remote_url}"
 
     return "\n".join(filter(None, [
         init_result,
