@@ -62,12 +62,16 @@ def set_remote_with_token(path, repo_url, token):
     subprocess.run(["git", "remote", "set-url", "origin", url], cwd=path)
 
 def handle_init(path, auto_confirm=True):
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
     result = subprocess.run(["git", "init"], cwd=path, capture_output=True, text=True)
     if result.returncode == 0:
         return "Git-Repo erfolgreich initialisiert"
     return "Fehler beim Initialisieren: " + result.stderr
 
 def handle_init_full(path, remote_url=None, auto_confirm=True):
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
     init_result = handle_init(path, auto_confirm)
     gitignore_result = handle_gitignore(path)
     add_result = handle_add(path)
