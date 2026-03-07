@@ -50,6 +50,23 @@ def handle_init(path, auto_confirm=True):
         return "Git-Repo erfolgreich initialisiert"
     return "Fehler beim Initialisieren: " + result.stderr
 
+def handle_init_full(path, remote_url=None, auto_confirm=True):
+    # Git init
+    init_result = handle_init(path, auto_confirm)
+    # .gitignore erstellen
+    gitignore_result = handle_gitignore(path)
+    # Alle Dateien adden
+    add_result = handle_add(path)
+    # Erster Commit
+    commit_result = handle_commit(path)
+
+    push_result = ""
+    if remote_url:
+        remote_add_result = handle_remote_add(path, remote_url)
+        push_result = handle_push(path, auto_confirm)
+
+    return "\n".join(filter(None, [init_result, gitignore_result, add_result, commit_result, push_result]))
+
 def handle_gitignore(path):
     content = """
 __pycache__/
@@ -213,23 +230,25 @@ def handle_project_action(action, text, auto_confirm=True):
 
     if action == "init":
         try:
-            path = text.split("init", 1)[1].strip()
-            if not path:
-                return "Bitte gib einen Projektpfad an, z. B. 'init C:\\Users\\paust\\MeinProjekt'"
+            args = text.split("init", 1)[1].strip().split()
+            path = args[0]  # erstes Argument = Pfad
+            remote_url = args[1] if len(args) > 1 else None  # optionales zweites Argument = Remote
             os.makedirs(path, exist_ok=True)
         except Exception as e:
             return f"Fehler beim Verarbeiten des Pfads: {e}"
 
-        # 1. Git init
+        # Git init + .gitignore + Add + Commit
         init_result = handle_init(path, auto_confirm)
-        # 2. .gitignore
         gitignore_result = handle_gitignore(path)
-        # 3. Alle Dateien adden
         add_result = handle_add(path)
-        # 4. Ersten Commit
         commit_result = handle_commit(path)
 
-        return f"{init_result}\n{gitignore_result}\n{add_result}\n{commit_result}"
+        push_result = ""
+        if remote_url:
+            remote_add_result = handle_remote_add(path, remote_url)
+            push_result = handle_push(path, auto_confirm)
+
+        return "\n".join(filter(None, [init_result, gitignore_result, add_result, commit_result, push_result]))
 
     for name, path in projects.items():
         if name in text.lower():
