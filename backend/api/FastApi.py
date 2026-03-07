@@ -29,8 +29,9 @@ def github_login():
 
 @app.get("/auth/github/callback")
 async def github_callback(code: str):
-    async with httpx.AsyncClient() as client:
+    global ACCESS_TOKEN
 
+    async with httpx.AsyncClient() as client:
         token_res = await client.post(
             "https://github.com/login/oauth/access_token",
             headers={"Accept": "application/json"},
@@ -41,8 +42,8 @@ async def github_callback(code: str):
             }
         )
 
-    token_store.ACCESS_TOKEN = token_res.json()["access_token"]
-    print(token_store.ACCESS_TOKEN)
+    ACCESS_TOKEN = token_res.json()["access_token"]
+    print("GitHub OAuth Token:", ACCESS_TOKEN)
 
     return RedirectResponse("http://localhost:5173/login-success")
 

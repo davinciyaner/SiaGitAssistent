@@ -78,36 +78,41 @@ def handle_init(path, auto_confirm=True):
     return "Fehler beim Initialisieren: " + result.stderr
 
 def handle_init_full(path, remote_url=None, auto_confirm=True):
-    env = os.environ.copy()
-    env["GIT_TERMINAL_PROMPT"] = "0"
+    global ACCESS_TOKEN  # muss den OAuth Token kennen
+
+    # 1. Git init
     init_result = handle_init(path, auto_confirm)
+
+    # 2. .gitignore
     gitignore_result = handle_gitignore(path)
+
+    # 3. Alle Dateien adden
     add_result = handle_add(path)
+
+    # 4. Erster Commit
     commit_result = handle_commit(path)
 
     push_result = ""
+    remote_add_result = ""
 
     if remote_url:
-        remote_add_result = handle_remote_add(path, remote_url)
-        set_remote_with_token(path, remote_url)
-        push_result = handle_push(path, auto_confirm)
+        # Wenn Access Token existiert, Remote URL mit Token setzen
+        if ACCESS_TOKEN:
+            token_url = remote_url.replace("https://", f"https://{ACCESS_TOKEN}@")
+            remote_add_result = handle_remote_add(path, token_url)
+            push_result = handle_push(path, auto_confirm)
+        else:
+            # Fallback, normal Remote setzen (fragt nach Username/Password)
+            remote_add_result = handle_remote_add(path, remote_url)
 
-        return "\n".join([
-            init_result,
-            gitignore_result,
-            add_result,
-            commit_result,
-            remote_add_result,
-            push_result
-        ])
-
-    else:
-        return "\n".join([
-            init_result,
-            gitignore_result,
-            add_result,
-            commit_result
-        ])
+    return "\n".join(filter(None, [
+        init_result,
+        gitignore_result,
+        add_result,
+        commit_result,
+        remote_add_result,
+        push_result
+    ]))
 
 def handle_gitignore(path):
     content = """
