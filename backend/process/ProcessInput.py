@@ -51,21 +51,18 @@ def handle_init(path, auto_confirm=True):
     return "Fehler beim Initialisieren: " + result.stderr
 
 def handle_init_full(path, remote_url=None, auto_confirm=True):
-    # Git init
     init_result = handle_init(path, auto_confirm)
-    # .gitignore erstellen
     gitignore_result = handle_gitignore(path)
-    # Alle Dateien adden
     add_result = handle_add(path)
-    # Erster Commit
     commit_result = handle_commit(path)
 
     push_result = ""
     if remote_url:
         remote_add_result = handle_remote_add(path, remote_url)
         push_result = handle_push(path, auto_confirm)
-
-    return "\n".join(filter(None, [init_result, gitignore_result, add_result, commit_result, push_result]))
+        return "\n".join([init_result, gitignore_result, add_result, commit_result, remote_add_result, push_result])
+    else:
+        return "\n".join([init_result, gitignore_result, add_result, commit_result])
 
 def handle_gitignore(path):
     content = """
@@ -92,7 +89,15 @@ def handle_remote_add(path, url):
 
 def handle_push(path, auto_confirm=True):
     result = subprocess.run(
-        ["git", "push"],
+        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+        cwd=path,
+        capture_output=True,
+        text=True
+    )
+    branch = result.stdout.strip()
+
+    result = subprocess.run(
+        ["git", "push", "-u", "origin", branch],
         cwd=path,
         capture_output=True,
         text=True,
@@ -100,7 +105,7 @@ def handle_push(path, auto_confirm=True):
     )
 
     if result.returncode == 0:
-        return "Push erfolgreich\n" + result.stdout
+        return f"Push erfolgreich auf {branch}\n" + result.stdout
     return "Push fehlgeschlagen\n" + result.stderr
 
 
