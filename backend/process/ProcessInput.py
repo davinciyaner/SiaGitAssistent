@@ -6,7 +6,7 @@ projects = {
 }
 
 DEFAULT_CONFIRM = True
-
+ACCESS_TOKEN = None
 
 def process_input(text, auto_confirm=True):
     text = text.lower()
@@ -39,6 +39,18 @@ def process_input(text, auto_confirm=True):
         return "Diesen Befehl kenne ich nicht"
 
 
+def set_remote_with_token(path, repo_url):
+
+    url = repo_url.replace(
+        "https://",
+        f"https://{ACCESS_TOKEN}@"
+    )
+
+    subprocess.run(
+        ["git", "remote", "set-url", "origin", url],
+        cwd=path
+    )
+
 def confirm_action(message, auto_confirm=True):
     if auto_confirm:
         return True
@@ -62,12 +74,28 @@ def handle_init_full(path, remote_url=None, auto_confirm=True):
     commit_result = handle_commit(path)
 
     push_result = ""
+
     if remote_url:
         remote_add_result = handle_remote_add(path, remote_url)
+        set_remote_with_token(path, remote_url)
         push_result = handle_push(path, auto_confirm)
-        return "\n".join([init_result, gitignore_result, add_result, commit_result, remote_add_result, push_result])
+
+        return "\n".join([
+            init_result,
+            gitignore_result,
+            add_result,
+            commit_result,
+            remote_add_result,
+            push_result
+        ])
+
     else:
-        return "\n".join([init_result, gitignore_result, add_result, commit_result])
+        return "\n".join([
+            init_result,
+            gitignore_result,
+            add_result,
+            commit_result
+        ])
 
 def handle_gitignore(path):
     content = """
@@ -93,6 +121,9 @@ def handle_remote_add(path, url):
 
 
 def handle_push(path, auto_confirm=True):
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+
     result = subprocess.run(
         ["git", "rev-parse", "--abbrev-ref", "HEAD"],
         cwd=path,

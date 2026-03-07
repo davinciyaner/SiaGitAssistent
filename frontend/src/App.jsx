@@ -1,15 +1,8 @@
 import {useState} from "react";
-import CommandInput from "./components/CommandInput";
-import TerminalOutput from "./components/TerminalOutput";
-import GitHubAuthModal from "./components/GitHubAuthModel";
 
 function App() {
     const [command, setCommand] = useState("");
     const [output, setOutput] = useState("");
-
-    const [logs, setLogs] = useState([]);
-    const [showAuth, setShowAuth] = useState(false);
-    const [pendingCommand, setPendingCommand] = useState(null);
 
     const sendCommand = async () => {
         try {
@@ -29,35 +22,17 @@ function App() {
         }
     };
 
-    async function runCommand(command, token = null) {
-
-        const res = await sendCommand(command, token);
-
-        if (res.requires_auth) {
-            setPendingCommand(command);
-            setShowAuth(true);
-            return;
-        }
-
-        setLogs(l => [...l, res.output]);
-    }
-
-    async function handleCommand(command) {
-        runCommand(command);
-    }
-
-    async function handleAuth(token) {
-
-        setShowAuth(false);
-
-        const res = await sendCommand(pendingCommand, token);
-
-        setLogs(l => [...l, res.output]);
+    function login() {
+        window.location.href = "http://localhost:8001/auth/github/login"
     }
 
     return (
         <div className="p-10">
             <h1 className="text-3xl font-bold mb-4">AISIA Git Assistant</h1>
+
+            <button onClick={login}>
+                Login with GitHub
+            </button>
 
             <input
                 value={command}
@@ -74,15 +49,6 @@ function App() {
             </button>
 
             <pre className="mt-6 bg-black text-green-400 p-4">{output}</pre>
-
-            <CommandInput onCommand={handleCommand}/>
-
-            <TerminalOutput logs={logs}/>
-
-            <GitHubAuthModal
-                visible={showAuth}
-                onSubmit={handleAuth}
-            />
         </div>
     );
 }
