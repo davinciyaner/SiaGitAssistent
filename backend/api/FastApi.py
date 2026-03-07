@@ -94,6 +94,25 @@ def handle_push(path):
         return f"Push erfolgreich auf {branch}"
     return f"Push fehlgeschlagen: {result.stderr}"
 
+
+def create_github_repo(repo_name, private=True):
+    global ACCESS_TOKEN
+    if not ACCESS_TOKEN:
+        return "Kein GitHub Token vorhanden"
+
+    headers = {"Authorization": f"token {ACCESS_TOKEN}"}
+    data = {"name": repo_name, "private": private}
+
+    with httpx.Client() as client:
+        res = client.post("https://api.github.com/user/repos", headers=headers, json=data)
+
+    if res.status_code in [201, 202]:
+        return f"GitHub Repo '{repo_name}' erfolgreich erstellt"
+    elif res.status_code == 422:
+        return f"Repo '{repo_name}' existiert bereits"
+    else:
+        return f"Fehler beim Erstellen des Repos: {res.text}"
+
 # --- Init Full Function ---
 def handle_init_full(path, remote_url=None):
     global ACCESS_TOKEN
@@ -103,7 +122,14 @@ def handle_init_full(path, remote_url=None):
     commit_result = handle_commit(path)
 
     push_result = ""
+
     if remote_url and ACCESS_TOKEN:
+        # Repo auf GitHub erstellen
+        repo_name = remote_url.split("/")[-1].replace(".git","")
+        create_result = create_github_repo(repo_name)
+        print(create_result)
+
+        # Remote mit Token setzen
         set_remote_with_token(path, remote_url, ACCESS_TOKEN)
         push_result = handle_push(path)
 
