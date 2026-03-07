@@ -42,6 +42,7 @@ async def github_callback(code: str):
         )
 
     ACCESS_TOKEN = token_res.json()["access_token"]
+    print(ACCESS_TOKEN)
 
     return RedirectResponse("http://localhost:5173/login-success")
 

@@ -56,10 +56,17 @@ def confirm_action(message, auto_confirm=True):
         return True
     return True
 
-def set_remote_with_token(path, repo_url, token):
-    # repo_url ohne https:// prefix
-    url = repo_url.replace("https://", f"https://{token}@")
-    subprocess.run(["git", "remote", "set-url", "origin", url], cwd=path)
+def set_remote(path, repo_url, token):
+
+    url = repo_url.replace(
+        "https://",
+        f"https://{token}@"
+    )
+
+    subprocess.run(
+        ["git", "remote", "set-url", "origin", url],
+        cwd=path
+    )
 
 def handle_init(path, auto_confirm=True):
     env = os.environ.copy()
