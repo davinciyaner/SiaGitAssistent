@@ -1,12 +1,12 @@
 import os
 import subprocess
 
+
 projects = {
     "backend": r""
 }
 
 DEFAULT_CONFIRM = True
-ACCESS_TOKEN = None
 
 def process_input(text, auto_confirm=True):
     text = text.lower()
@@ -40,6 +40,7 @@ def process_input(text, auto_confirm=True):
 
 
 def set_remote_with_token(path, repo_url):
+    from backend.auth.token_store import ACCESS_TOKEN
 
     url = repo_url.replace(
         "https://",
@@ -124,6 +125,8 @@ __pycache__/
     return ".gitignore erstellt"
 
 def handle_remote_add(path, url):
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
     os.chdir(path)
     result = subprocess.run(["git", "remote", "add", "origin", url], capture_output=True, text=True)
     if result.returncode == 0:
@@ -157,6 +160,8 @@ def handle_push(path, auto_confirm=True):
 
 
 def handle_commit(path):
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
     os.chdir(path)
     subprocess.run(["git", "add", "."])
     result = subprocess.run(["git", "commit", "-m", "Auto commit by SIA"], capture_output=True, text=True)
@@ -166,6 +171,8 @@ def handle_commit(path):
 
 
 def handle_add(path, text=None):
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
     os.chdir(path)
     if text:
         words = text.split()

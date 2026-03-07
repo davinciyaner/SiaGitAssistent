@@ -4,9 +4,12 @@ from fastapi.responses import RedirectResponse
 import httpx
 import os
 
+from backend.auth import token_store
 from backend.process.ProcessInput import process_input
 
 from dotenv import load_dotenv
+
+
 load_dotenv()
 
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
@@ -26,9 +29,6 @@ def github_login():
 
 @app.get("/auth/github/callback")
 async def github_callback(code: str):
-
-    global ACCESS_TOKEN
-
     async with httpx.AsyncClient() as client:
 
         token_res = await client.post(
@@ -41,8 +41,8 @@ async def github_callback(code: str):
             }
         )
 
-    ACCESS_TOKEN = token_res.json()["access_token"]
-    print(ACCESS_TOKEN)
+    token_store.ACCESS_TOKEN = token_res.json()["access_token"]
+    print(token_store.ACCESS_TOKEN)
 
     return RedirectResponse("http://localhost:5173/login-success")
 
