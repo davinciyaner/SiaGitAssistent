@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "backend": {
+        "type": "github",
+        "backend": "",
+        "default_branch": "master"
+    }
+  }
+}
