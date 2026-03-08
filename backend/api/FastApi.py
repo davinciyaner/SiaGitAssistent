@@ -8,6 +8,7 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 from backend.api.routes import router, Command
+from backend.auth import token_store
 from backend.config.project_manager import load_projects, save_projects
 from backend.core.process_input import process_input
 
@@ -56,9 +57,6 @@ def github_login():
 @app.get("/auth/github/callback")
 async def github_callback(code: str):
     global ACCESS_TOKEN
-    if not code:
-        raise HTTPException(status_code=400, detail="Code fehlt von GitHub")
-
     async with httpx.AsyncClient() as client:
         res = await client.post(
             "https://github.com/login/oauth/access_token",
@@ -72,13 +70,13 @@ async def github_callback(code: str):
         )
 
     data = res.json()
-    if "access_token" not in data:
+    token = data.get("access_token")
+    if not token:
         raise HTTPException(status_code=400, detail=f"GitHub Token konnte nicht abgerufen werden: {data}")
 
-    ACCESS_TOKEN = data["access_token"]
-    print("✅ GitHub OAuth Token:", ACCESS_TOKEN)
-
-    # Redirect zurück zum Frontend (Login erfolgreich)
+    # ✅ Speichern in deinem zentralen Modul
+    token_store.ACCESS_TOKEN = token
+    print("✅ GitHub OAuth Token:", token)
     return RedirectResponse("http://localhost:5173/login-success")
 
 

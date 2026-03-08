@@ -1,21 +1,16 @@
 import httpx
 
-from backend.auth.token_store import ACCESS_TOKEN
+def create_github_repo(name, private=True):
+    import backend.auth.token_store as token_store
+    token = token_store.ACCESS_TOKEN
+    if not token:
+        return "Kein GitHub Token gefunden"
 
+    headers = {"Authorization": f"token {token}"}
+    data = {"name": name, "private": private}
 
-def create_github_repo(repo_name, private=True):
-    if not ACCESS_TOKEN:
-        return "Kein GitHub Token vorhanden"
-
-    headers = {"Authorization": f"token {ACCESS_TOKEN}"}
-    data = {"name": repo_name, "private": private}
-
-    with httpx.Client() as client:
-        res = client.post("https://api.github.com/user/repos", headers=headers, json=data)
-
-    if res.status_code in [201, 202]:
-        return f"GitHub Repo '{repo_name}' erfolgreich erstellt"
-    elif res.status_code == 422:
-        return f"Repo '{repo_name}' existiert bereits"
+    res = httpx.post("https://api.github.com/user/repos", headers=headers, json=data)
+    if res.status_code == 201:
+        return f"GitHub Repo '{name}' erfolgreich erstellt"
     else:
-        return f"Fehler beim Erstellen des Repos: {res.text}"
+        return f"Fehler beim Erstellen des Repos: {res.status_code} {res.text}"
