@@ -1,9 +1,13 @@
 {
-  "projects": {
-    "backend": {
-        "type": "github",
-        "backend": "",
-        "default_branch": "master"
+    "projects": {
+        "das": {
+            "path": "C:\\Users\\paust\\PycharmProjects\\DevOpsAgent"
+        },
+        "dev": {
+            "path": "C:\\Users\\paust\\PycharmProjects\\DevOpsAgent"
+        },
+        "ddd": {
+            "path": "C:\\Users\\paust\\PycharmProjects\\DevOpsAgent"
+        }
     }
-  }
 }

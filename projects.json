@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "projects": {
+      "devops": {
+        "path": "C:\\Users\\paust\\PycharmProjects\\DevOpsAgent"
+      }
+    },
+    "dev": {
+      "path": "C:\\Users\\paust\\PycharmProjects\\DevOpsAgent"
+    },
+    "devopsai": "C:\\Users\\paust\\PycharmProjects\\DevOpsAgent"
+  }
+}

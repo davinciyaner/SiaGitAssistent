@@ -279,13 +279,12 @@ def handle_project_action(action, text, auto_confirm=True):
     if action == "init":
         try:
             args = text.split("init", 1)[1].strip().split()
-            path = args[0]  # erstes Argument = Pfad
-            remote_url = args[1] if len(args) > 1 else None  # optionales zweites Argument = Remote
+            path = args[0]
+            remote_url = args[1] if len(args) > 1 else None
             os.makedirs(path, exist_ok=True)
         except Exception as e:
             return f"Fehler beim Verarbeiten des Pfads: {e}"
 
-        # Git init + .gitignore + Add + Commit
         init_result = handle_init(path, auto_confirm)
         gitignore_result = handle_gitignore(path)
         add_result = handle_add(path)
