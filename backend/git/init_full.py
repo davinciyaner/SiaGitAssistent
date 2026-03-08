@@ -13,7 +13,8 @@ def handle_init_full(path, remote_url=None):
     gi_result = handle_gitignore(path)
     add_result = handle_add(path)
     commit_result = handle_commit(path)
-
+    print("TOKEN:", token_store.ACCESS_TOKEN)
+    print("REMOTE:", remote_url)
     push_result = ""
 
     if remote_url and token_store.ACCESS_TOKEN:
@@ -25,7 +26,6 @@ def handle_init_full(path, remote_url=None):
         # Remote mit Token setzen
         set_remote_with_token(path, remote_url, token_store.ACCESS_TOKEN)
         push_result = handle_push(path)
-        print("TOKEN:", token_store.ACCESS_TOKEN)
-        print("REMOTE:", remote_url)
+
 
     return "\n".join(filter(None, [init_result, gi_result, add_result, commit_result, push_result]))
