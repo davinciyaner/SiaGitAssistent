@@ -1,4 +1,4 @@
-from backend.auth.token_store import ACCESS_TOKEN
+import backend.auth.token_store as token_store
 from backend.git.add import handle_add
 from backend.git.commit import handle_commit
 from backend.git.create_github_repo import create_github_repo
@@ -16,14 +16,16 @@ def handle_init_full(path, remote_url=None):
 
     push_result = ""
 
-    if remote_url and ACCESS_TOKEN:
+    if remote_url and token_store.ACCESS_TOKEN:
         # Repo auf GitHub erstellen
         repo_name = remote_url.split("/")[-1].replace(".git","")
         create_result = create_github_repo(repo_name)
         print(create_result)
 
         # Remote mit Token setzen
-        set_remote_with_token(path, remote_url, ACCESS_TOKEN)
+        set_remote_with_token(path, remote_url, token_store.ACCESS_TOKEN)
         push_result = handle_push(path)
+        print("TOKEN:", token_store.ACCESS_TOKEN)
+        print("REMOTE:", remote_url)
 
     return "\n".join(filter(None, [init_result, gi_result, add_result, commit_result, push_result]))
