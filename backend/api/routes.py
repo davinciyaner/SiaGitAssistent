@@ -21,20 +21,10 @@ class Command(BaseModel):
 
 @router.post("/command")
 def run_command(cmd: Command):
-    parts = cmd.command.strip().split()
-    if len(parts) < 2:
-        return {"output": "Bitte Projektname angeben, z.B. 'push backend'"}
-
-    action = parts[0].lower()
-    project_name = parts[1]
+    print("COMMAND RECEIVED:", cmd.command)
 
     projects = load_projects()
 
-    if project_name not in projects:
-        return {"output": f"Projekt '{project_name}' nicht registriert"}
-
-    path = projects[project_name]["path"]
-
-    result = process_input(action, path)
+    result = process_input(cmd.command)
 
     return {"output": result}
