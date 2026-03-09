@@ -12,17 +12,12 @@ def load_projects():
         data = json.load(f)
 
     projects = data.get("projects", {})
-
-    # 🧹 Leere oder kaputte Einträge entfernen
     clean_projects = {}
-
     for name, value in projects.items():
 
-        # Fall 1: {"path": "..."}
         if isinstance(value, dict) and value.get("path"):
             clean_projects[name] = value
 
-        # Fall 2: leerer String -> ignorieren
         elif value == "" or value is None:
             continue
 
@@ -30,8 +25,6 @@ def load_projects():
 
 
 def save_projects(projects):
-
-    # Sicherheitsfilter gegen leere Projekte
     clean_projects = {}
 
     for name, value in projects.items():

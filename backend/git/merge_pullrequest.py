@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+from backend.git.confirm_action import confirm_action
+
 
 def handle_merge_pr(text, path, auto_confirm=True):
     words = text.split()
@@ -10,7 +12,8 @@ def handle_merge_pr(text, path, auto_confirm=True):
         in_index = words.index("in")
         target_branch = words[in_index + 1]
     except:
-        return "Format: merge pr <source_branch> in <target_branch> (projekt)"
+        return "Syntaxfehler: merge pr <source_branch> in <target_branch>"
+
     if not confirm_action(f"Merge PR {source_branch} -> {target_branch}", auto_confirm):
         return "Merge abgebrochen"
     os.chdir(path)

@@ -1,29 +1,47 @@
-import os
 import subprocess
+from backend.auth import token_store
 
-from backend.git.confirm_action import confirm_action
+def handle_pull_request(path, target_branch):
+    current_branch = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+        cwd=path, capture_output=True, text=True
+    ).stdout.strip()
 
+    if not token_store.ACCESS_TOKEN:
+        return "Kein GitHub-Token verfügbar – PR nicht erstellt"
 
-def handle_pull_request(text, path, auto_confirm=True):
-    words = text.split()
+    if not target_branch:
+        return "Ziel-Branch fehlt für PR"
+
+    remote_url_res = subprocess.run(
+        ["git", "config", "--get", "remote.origin.url"],
+        cwd=path, capture_output=True, text=True
+    )
+    remote_url = remote_url_res.stdout.strip()
+    if not remote_url:
+        return "Kein Remote-Repository gefunden"
+
+    import re
+    match = re.search(r"github.com[:/](.+)/(.+)\.git", remote_url)
+    if not match:
+        return "Repo URL konnte nicht geparst werden"
+    owner, repo = match.groups()
+
+    url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
+    headers = {"Authorization": f"token {token_store.ACCESS_TOKEN}"}
+    data = {
+        "title": f"PR: {current_branch} → {target_branch}",
+        "head": current_branch,
+        "base": target_branch,
+        "body": f"Automatisch erstellter PR von Branch {current_branch} in {target_branch}"
+    }
+
     try:
-        pr_index = words.index("pr")
-        source_branch = words[pr_index + 1]
-        in_index = words.index("in")
-        target_branch = words[in_index + 1]
-    except:
-        return "Format: pr <source_branch> in <target_branch> (projekt)"
-    if not confirm_action(f"PR erstellen {source_branch} -> {target_branch}", auto_confirm):
-        return "PR abgebrochen"
-    os.chdir(path)
-    result = subprocess.run(["gh", "pr", "create",
-                             "--base", target_branch,
-                             "--head", source_branch,
-                             "--title", f"Merge {source_branch} in {target_branch}",
-                             "--body", "PR created by SIA"], capture_output=True, text=True)
-    output = result.stdout + result.stderr
-    if "already exists" in output:
-        return f"PR existiert bereits: {source_branch} -> {target_branch}"
-    if result.returncode == 0:
-        return f"PR erfolgreich erstellt: {source_branch} -> {target_branch}"
-    return f"Fehler beim Erstellen des PR: {output}"
+        import requests
+        res = requests.post(url, headers=headers, json=data)
+        if res.status_code == 201:
+            return f"Pull Request erfolgreich erstellt: {res.json().get('html_url')}"
+        else:
+            return f"PR konnte nicht erstellt werden: {res.text}"
+    except Exception as e:
+        return f"Fehler beim Erstellen des PR: {str(e)}"

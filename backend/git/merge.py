@@ -1,16 +1,17 @@
-import os
 import subprocess
 
+def handle_merge(path, target_branch):
+    # Aktuellen Branch ermitteln
+    current_branch = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+        cwd=path, capture_output=True, text=True
+    ).stdout.strip()
 
-def handle_merge(text, path, auto_confirm=True):
-    words = text.split()
+    if not target_branch:
+        return "Dein Branch fehlt für Merge"
+
     try:
-        source_branch = words[words.index("merge") + 1]
-        target_branch = words[words.index("in") + 1]
-    except:
-        return "Format: merge <source_branch> in <target_branch>"
-    os.chdir(path)
-    subprocess.run(["git", "checkout", target_branch])
-    subprocess.run(["git", "merge", source_branch])
-    subprocess.run(["git", "push", "origin", target_branch])
-    return f"{source_branch} wurde in {target_branch} gemerged."
+        subprocess.run(["git", "merge", target_branch], cwd=path, check=True, text=True)
+        return f"Branch '{target_branch}' erfolgreich in '{current_branch}' gemerged"
+    except subprocess.CalledProcessError as e:
+        return f"Merge fehlgeschlagen: {e.stderr}"

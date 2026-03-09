@@ -1,5 +1,4 @@
 import os
-from fastapi import FastAPI
 
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
