@@ -198,7 +198,7 @@ Planned improvements include:
 
 # Author
 
-Created by **Your Name**
+Created by **Finn Paustian**
 
 ---
 
