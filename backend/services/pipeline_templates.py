@@ -3,7 +3,7 @@ name: Python CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ origin/master ]
 
 jobs:
   build:
@@ -33,7 +33,7 @@ name: Node CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ origin/master ]
 
 jobs:
   build:
