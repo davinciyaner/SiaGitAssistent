@@ -26,5 +26,6 @@ def run_command(cmd: Command):
     projects = load_projects()
 
     result = process_input(cmd.command)
+    print(result)
 
     return {"output": result}

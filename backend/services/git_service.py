@@ -12,7 +12,7 @@ class GitHubService:
 
         data = {
             "name": name,
-            "private": True
+            "private": False
         }
 
         res = httpx.post("https://api.github.com/user/repos", headers=headers, json=data)
