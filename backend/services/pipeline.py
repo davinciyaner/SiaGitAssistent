@@ -1,3 +1,5 @@
+import os
+import subprocess
 import time
 
 import requests
@@ -90,18 +92,70 @@ def auto_pipeline(owner, repo, token):
         time.sleep(10)
 
 
-def create_pipeline(path):
-    project_type = detect_project_type(path)
-    pipeline = generate_pipeline(project_type)
+def create_pipeline(path: str, owner: str = None, repo: str = None, token: str = None):
+    workflow_dir = os.path.join(path, ".github", "workflows")
+    os.makedirs(workflow_dir, exist_ok=True)
 
-    if not pipeline:
-        return "Ich konnte keinen Projekttyp finden"
+    workflow_file = os.path.join(workflow_dir, "ci.yml")
 
-    file = write_pipeline(path, pipeline)
+    workflow_content = """
+name: Python CI
 
-    handle_add(path)
-    handle_commit(path)
-    handle_push(path)
+on:
+  push:
+    branches: [ master ]
 
-    return f"Ich habe eine Pipeline erstellt und gepusht: {file}"
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Tests
+        run: |
+          pytest
+"""
+
+    with open(workflow_file, "w") as f:
+        f.write(workflow_content.strip())
+
+    # Git Befehle
+    try:
+        subprocess.run(["git", "add", workflow_file], cwd=path, check=True)
+        subprocess.run(["git", "commit", "-m", "Add CI/CD pipeline via SIA"], cwd=path, check=True)
+        subprocess.run(["git", "push", "origin", "master"], cwd=path, check=True)
+    except subprocess.CalledProcessError as e:
+        return f"Fehler beim Pushen der Pipeline: {e}"
+
+    # Optional: GitHub Actions Status prüfen
+    if owner and repo and token:
+        try:
+            url = f"https://api.github.com/repos/{owner}/{repo}/actions/runs"
+            headers = {"Authorization": f"Bearer {token}"}
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            runs = response.json().get("workflow_runs", [])
+            if not runs:
+                return "Pipeline erstellt und gepusht, Workflow noch nicht gestartet."
+            latest = runs[0]
+            status = latest.get("status")
+            conclusion = latest.get("conclusion")
+            html_url = latest.get("html_url")
+            return f"Pipeline gepusht!\nWorkflow Status: {status}, Conclusion: {conclusion}\n{html_url}"
+        except Exception as e:
+            return f"Pipeline gepusht, aber Fehler beim Abrufen des Workflow-Status: {e}"
+
+    return "Pipeline erfolgreich erstellt und gepusht!"
     

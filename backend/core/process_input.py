@@ -85,12 +85,10 @@ def process_input(command_text: str, project_path: str = None, token: str = None
     elif command == "status":
         return handle_status(path)
     elif command == "create":
-
         if len(words) < 3:
-            return "Syntax: create pipeline <projekt>"
+            return "Syntaxfehler: create pipeline <projekt>"
 
         if words[1] == "pipeline":
-
             project_name = words[2]
 
             if project_name not in projects:
@@ -98,8 +96,12 @@ def process_input(command_text: str, project_path: str = None, token: str = None
 
             path = projects[project_name]["path"]
 
+            # Optional: GitHub owner, repo und token übergeben
+            owner = "davinciyaner"
+            repo = "SiaGitAssistent"
+            token = None  # hier dein GitHub Token eintragen, falls nötig
 
-            return create_pipeline(path)
+            return create_pipeline(path, owner, repo, token)
     elif command == "merge":
         if "in" not in words:
             return "Syntaxfehler: 'merge <projekt> in <branch>'"

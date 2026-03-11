@@ -1,9 +1,8 @@
-
 name: Python CI
 
 on:
   push:
-    branches: [ "*" ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -21,8 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r backend/requirements.txt
 
       - name: Run Tests
         run: |
-          pytest
+          pytest backend

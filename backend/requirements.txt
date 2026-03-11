@@ -3,3 +3,10 @@ uvicorn
 requests
 python-dotenv
 pydantic
+
+pytest
+httpx
+pytest-asyncio
+
+black
+flake8
