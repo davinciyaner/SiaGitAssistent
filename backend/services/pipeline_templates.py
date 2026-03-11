@@ -21,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r backend/requirements.txt
 
       - name: Run Tests
         run: |
@@ -52,4 +52,3 @@ jobs:
       - run: npm install
       - run: npm test
 """
-
