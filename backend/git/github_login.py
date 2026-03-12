@@ -1,9 +1,14 @@
 import os
 
+from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import RedirectResponse
+
+from fastapi import FastAPI
+
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 
-app = FastApi()
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
