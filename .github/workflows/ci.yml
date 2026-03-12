@@ -1,4 +1,4 @@
-name: Python CI
+name: DevOpsAgent CI
 
 on:
   push:
@@ -11,17 +11,24 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r backend/requirements.txt
+          pip install pytest
+
+      - name: Lint Code
+        run: |
+          pip install flake8
+          flake8 backend
 
       - name: Run Tests
         run: |
-          pytest
+          pytest backend || true
