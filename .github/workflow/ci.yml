@@ -12,24 +12,22 @@ jobs:
     steps:
 
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.9
 
       - name: Install Dependencies
         run: |
           pip install -r backend/requirements.txt
-          pip install pytest
+          pip install pytest flake8
 
       - name: Lint Code
         run: |
-          pip install flake8
           flake8 backend || true
 
       - name: Run Tests
         run: |
           pytest backend || true
-
