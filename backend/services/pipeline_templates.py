@@ -3,7 +3,7 @@ name: Python CI
 
 on:
   push:
-    branches: [ origin/master ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -22,14 +22,15 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r backend/requirements.txt
+          pip install pytest flake8
+
+      - name: Lint Code
+        run: |
+          flake8 backend || true
 
       - name: Run Tests
         run: |
           pytest backend || true
-      - name: Lint Code
-        run: |
-           pip install flake8
-           flake8 backend || true
 """
 
 node_pipeline = """
@@ -37,7 +38,7 @@ name: Node CI
 
 on:
   push:
-    branches: [ origin/master ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -46,10 +47,10 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 24
 
