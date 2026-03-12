@@ -26,11 +26,12 @@ jobs:
 
       - name: Lint Code
         run: |
-          flake8 backend || true
+          flake8 backend
 
       - name: Run Tests
         run: |
           pytest backend || true
+          black --check backend
 """
 
 node_pipeline = """
