@@ -7,6 +7,7 @@ from backend.git.init import handle_init
 from backend.git.push import handle_push
 from backend.git.set_remote_with_token import set_remote_with_token
 
+
 def handle_init_full(path, remote_url=None):
     init_result = handle_init(path)
     gi_result = handle_gitignore(path)

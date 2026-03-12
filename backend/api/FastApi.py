@@ -10,17 +10,14 @@ from backend.api.routes import router
 from backend.auth import token_store
 from backend.config.project_manager import save_projects
 
-
 from backend.process.ProcessInput import projects
 
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 loaded = load_dotenv(dotenv_path)
 
-
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 ACCESS_TOKEN = None
-
 
 app = FastAPI()
 
@@ -70,6 +67,7 @@ class Project(BaseModel):
     name: str
     path: str
 
+
 @app.post("/project")
 def register_project(project: Project):
     if not project.path:
@@ -80,6 +78,7 @@ def register_project(project: Project):
     save_projects(projects)
 
     return {"message": f"Projekt '{project.name}' gespeichert!"}
+
 
 @app.get("/projects")
 def get_projects():

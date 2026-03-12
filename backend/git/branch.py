@@ -1,6 +1,7 @@
 import subprocess
 from backend.auth import token_store
 
+
 def handle_branch(path, branch_name=None, push_to_github=False):
     if not branch_name:
         return "Bitte gib einen Branchnamen an."

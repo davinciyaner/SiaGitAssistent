@@ -12,7 +12,6 @@ from backend.services.pipeline import run_pipeline, get_pipeline_logs, get_pipel
 
 
 def process_input(command_text: str, project_path: str = None, token: str = None):
-
     projects = load_projects()
     command_text = command_text.strip()
 
@@ -56,7 +55,6 @@ def process_input(command_text: str, project_path: str = None, token: str = None
         return f"Ich habe das Projekt '{project_name}' nicht gefunden."
 
     path = projects[project_name]["path"]
-
 
     if command == "init full":
         if project_name in projects:

@@ -1,6 +1,7 @@
 import subprocess
 from backend.auth import token_store
 
+
 def handle_push(path, remote_url=None):
     branch_res = subprocess.run(
         ["git", "rev-parse", "--abbrev-ref", "HEAD"],

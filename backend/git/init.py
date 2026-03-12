@@ -2,6 +2,7 @@ from backend.config.project_manager import load_projects, save_projects
 import subprocess
 import os
 
+
 def handle_init(name: str, path: str, remote_url: str = None):
     """
     Initialisiert ein Projekt:

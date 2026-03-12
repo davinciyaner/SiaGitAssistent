@@ -1,5 +1,6 @@
 import subprocess
 
+
 def handle_checkout(path, branch_name):
     try:
         subprocess.run(["git", "checkout", branch_name], cwd=path, check=True)

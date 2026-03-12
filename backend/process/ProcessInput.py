@@ -1,12 +1,12 @@
 import os
 import subprocess
 
-
 projects = {
     "backend": r""
 }
 
 DEFAULT_CONFIRM = True
+
 
 def process_input(text, auto_confirm=True):
     text = text.lower()
@@ -47,13 +47,14 @@ def set_remote_with_token(path, remote_url, token):
         check=True
     )
 
+
 def confirm_action(message, auto_confirm=True):
     if auto_confirm:
         return True
     return True
 
-def set_remote(path, repo_url, token):
 
+def set_remote(path, repo_url, token):
     url = repo_url.replace(
         "https://",
         f"https://{token}@"
@@ -64,6 +65,7 @@ def set_remote(path, repo_url, token):
         cwd=path
     )
 
+
 def handle_init(path, auto_confirm=True):
     env = os.environ.copy()
     env["GIT_TERMINAL_PROMPT"] = "0"
@@ -71,6 +73,7 @@ def handle_init(path, auto_confirm=True):
     if result.returncode == 0:
         return "Git-Repo erfolgreich initialisiert"
     return "Fehler beim Initialisieren: " + result.stderr
+
 
 def handle_init_full(path, remote_url=None):
     global ACCESS_TOKEN
@@ -98,6 +101,7 @@ def handle_init_full(path, remote_url=None):
         push_result
     ]))
 
+
 def handle_gitignore(path):
     content = """
 __pycache__/
@@ -112,6 +116,7 @@ __pycache__/
     with open(os.path.join(path, ".gitignore"), "w") as f:
         f.write(content)
     return ".gitignore erstellt"
+
 
 def handle_remote_add(path, url):
     env = os.environ.copy()

@@ -1,5 +1,6 @@
 import subprocess
 
+
 def handle_merge(path, target_branch):
     # Aktuellen Branch ermitteln
     current_branch = subprocess.run(

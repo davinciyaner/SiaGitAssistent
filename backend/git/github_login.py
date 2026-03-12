@@ -3,7 +3,6 @@ import os
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 
-
 app = FastApi()
 
 app.add_middleware(
@@ -12,6 +11,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.get("/auth/github/login")
 def github_login():

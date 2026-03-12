@@ -1,6 +1,7 @@
 import subprocess
 from backend.auth import token_store
 
+
 def handle_pull_request(path, target_branch):
     current_branch = subprocess.run(
         ["git", "rev-parse", "--abbrev-ref", "HEAD"],

@@ -19,7 +19,7 @@ def run_pipeline(owner, repo, token):
 
     response = requests.post(url, headers=headers, json=data)
 
-    if response.status_code in [200,204]:
+    if response.status_code in [200, 204]:
         return {"status": "Ich habe deine Pipeline gestartet"}
 
     return {"error": response.text}
@@ -63,6 +63,7 @@ def get_pipeline_logs(owner, repo, token):
     logs = requests.get(log_url, headers=headers)
 
     return {"logs_url": log_url}
+
 
 def auto_pipeline(owner, repo, token):
     print("starte pipeline..")
@@ -151,4 +152,3 @@ jobs:
             return f"Pipeline gepusht, aber Fehler beim Abrufen des Workflow-Status: {e}"
 
     return "Pipeline erfolgreich erstellt und gepusht!"
-    
