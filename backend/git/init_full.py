@@ -26,4 +26,6 @@ def handle_init_full(path, remote_url=None):
 
         push_result = handle_push(path)
 
-    return "\n".join(filter(None, [init_result, gi_result, add_result, commit_result, push_result]))
+    return "\n".join(
+        filter(None, [init_result, gi_result, add_result, commit_result, push_result])
+    )

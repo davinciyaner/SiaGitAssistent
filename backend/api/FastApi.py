@@ -45,18 +45,17 @@ async def github_callback(code: str):
         res = await client.post(
             "https://github.com/login/oauth/access_token",
             headers={"Accept": "application/json"},
-            data={
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
-                "code": code
-            },
-            timeout=10.0
+            data={"client_id": CLIENT_ID, "client_secret": CLIENT_SECRET, "code": code},
+            timeout=10.0,
         )
 
     data = res.json()
     token = data.get("access_token")
     if not token:
-        raise HTTPException(status_code=400, detail=f"GitHub Token konnte nicht abgerufen werden: {data}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"GitHub Token konnte nicht abgerufen werden: {data}",
+        )
 
     token_store.ACCESS_TOKEN = token
     print("GitHub OAuth Token:", token)

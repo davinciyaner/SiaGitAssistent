@@ -31,9 +31,7 @@ def save_projects(projects):
         if isinstance(value, dict) and value.get("path"):
             clean_projects[name] = value
 
-    data = {
-        "projects": clean_projects
-    }
+    data = {"projects": clean_projects}
 
     with open(PROJECT_FILE, "w") as f:
         json.dump(data, f, indent=4)

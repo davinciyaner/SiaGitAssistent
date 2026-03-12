@@ -11,11 +11,7 @@ async def github_callback(code: str):
         res = await client.post(
             "https://github.com/login/oauth/access_token",
             headers={"Accept": "application/json"},
-            data={
-                "client_id": CLIENT_ID,
-                "client_secret": CLIENT_SECRET,
-                "code": code
-            }
+            data={"client_id": CLIENT_ID, "client_secret": CLIENT_SECRET, "code": code},
         )
     ACCESS_TOKEN = res.json()["access_token"]
     print("GitHub OAuth Token:", ACCESS_TOKEN)

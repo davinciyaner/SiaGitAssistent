@@ -7,8 +7,13 @@ from backend.git.status import handle_status
 from backend.git.push import handle_push
 from backend.git.branch import handle_branch
 from backend.git.merge_pullrequest import handle_merge_pr
-from backend.services.pipeline import run_pipeline, get_pipeline_logs, get_pipeline_status, auto_pipeline, \
-    create_pipeline
+from backend.services.pipeline import (
+    run_pipeline,
+    get_pipeline_logs,
+    get_pipeline_status,
+    auto_pipeline,
+    create_pipeline,
+)
 
 
 def process_input(command_text: str, project_path: str = None, token: str = None):
@@ -48,6 +53,7 @@ def process_input(command_text: str, project_path: str = None, token: str = None
             return "Syntax: init <projektname> <pfad> <optional: repo_url>"
 
         from backend.git.init import handle_init
+
         return handle_init(project_name, project_path, remote_url)
 
     # ERST HIER prüfen ob Projekt existiert
@@ -112,6 +118,7 @@ def process_input(command_text: str, project_path: str = None, token: str = None
 
         path = projects[project_name]["path"]
         from backend.git.merge import handle_merge
+
         return handle_merge(path, target_branch)
     elif command == "pr":
         if "in" not in words:
@@ -126,6 +133,7 @@ def process_input(command_text: str, project_path: str = None, token: str = None
 
         path = projects[project_name]["path"]
         from backend.git.pullrequest import handle_pull_request
+
         return handle_pull_request(path, target_branch)
     elif command == "checkout":
         branch_name = words[2] if len(words) > 2 else None

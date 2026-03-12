@@ -7,7 +7,7 @@ def handle_push(path, remote_url=None):
         ["git", "rev-parse", "--abbrev-ref", "HEAD"],
         cwd=path,
         capture_output=True,
-        text=True
+        text=True,
     )
     branch = branch_res.stdout.strip()
     if not branch:
@@ -17,11 +17,11 @@ def handle_push(path, remote_url=None):
 
     if remote_url and token_store.ACCESS_TOKEN:
         if "@" not in remote_url.split("https://")[-1]:
-            token_url = remote_url.replace("https://", f"https://{token_store.ACCESS_TOKEN}@")
+            token_url = remote_url.replace(
+                "https://", f"https://{token_store.ACCESS_TOKEN}@"
+            )
             subprocess.run(
-                ["git", "remote", "set-url", "origin", token_url],
-                cwd=path,
-                check=True
+                ["git", "remote", "set-url", "origin", token_url], cwd=path, check=True
             )
 
     try:
@@ -30,7 +30,7 @@ def handle_push(path, remote_url=None):
             cwd=path,
             check=True,
             capture_output=True,
-            text=True
+            text=True,
         )
         msg = f"Push erfolgreich auf {branch}"
     except subprocess.CalledProcessError as e:

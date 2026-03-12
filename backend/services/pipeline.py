@@ -10,12 +10,10 @@ def run_pipeline(owner, repo, token):
 
     headers = {
         "Authorization": f"Bearer {token}",
-        "Accept": "application/vnd.github+json"
+        "Accept": "application/vnd.github+json",
     }
 
-    data = {
-        "ref": "main"
-    }
+    data = {"ref": "main"}
 
     response = requests.post(url, headers=headers, json=data)
 
@@ -28,9 +26,7 @@ def run_pipeline(owner, repo, token):
 def get_pipeline_status(owner, repo, token):
     url = f"https://api.github.com/repos/{owner}/{repo}/actions/runs"
 
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
+    headers = {"Authorization": f"Bearer {token}"}
 
     response = requests.get(url, headers=headers)
 
@@ -39,7 +35,11 @@ def get_pipeline_status(owner, repo, token):
     if "workflow_runs" in data and len(data["workflow_runs"]) > 0:
         run = data["workflow_runs"][0]
 
-        return {"status": run["status"], "conclusion": run["conclusion"], "url": run["html_url"]}
+        return {
+            "status": run["status"],
+            "conclusion": run["conclusion"],
+            "url": run["html_url"],
+        }
 
     return {"error": "Ich habe keine Pipeline gefunden"}
 
@@ -47,9 +47,7 @@ def get_pipeline_status(owner, repo, token):
 def get_pipeline_logs(owner, repo, token):
     url = f"https://api.github.com/repos/{owner}/{repo}/actions/runs"
 
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
+    headers = {"Authorization": f"Bearer {token}"}
 
     response = requests.get(url, headers=headers)
 
@@ -128,7 +126,9 @@ jobs:
     # Git Befehle
     try:
         subprocess.run(["git", "add", workflow_file], cwd=path, check=True)
-        subprocess.run(["git", "commit", "-m", "Add CI/CD pipeline via SIA"], cwd=path, check=True)
+        subprocess.run(
+            ["git", "commit", "-m", "Add CI/CD pipeline via SIA"], cwd=path, check=True
+        )
         subprocess.run(["git", "push", "origin", "master"], cwd=path, check=True)
     except subprocess.CalledProcessError as e:
         return f"Fehler beim Pushen der Pipeline: {e}"
@@ -149,6 +149,8 @@ jobs:
             html_url = latest.get("html_url")
             return f"Pipeline gepusht!\nWorkflow Status: {status}, Conclusion: {conclusion}\n{html_url}"
         except Exception as e:
-            return f"Pipeline gepusht, aber Fehler beim Abrufen des Workflow-Status: {e}"
+            return (
+                f"Pipeline gepusht, aber Fehler beim Abrufen des Workflow-Status: {e}"
+            )
 
     return "Pipeline erfolgreich erstellt und gepusht!"

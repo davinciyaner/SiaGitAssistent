@@ -18,6 +18,22 @@ def handle_merge_pr(text, path, auto_confirm=True):
         return "Merge abgebrochen"
     os.chdir(path)
     result = subprocess.run(
-        ["gh", "pr", "merge", "--head", source_branch, "--base", target_branch, "--merge", "--delete-branch"],
-        capture_output=True, text=True)
-    return result.stdout + result.stderr if result.returncode != 0 else f"PR gemerged: {source_branch} -> {target_branch}"
+        [
+            "gh",
+            "pr",
+            "merge",
+            "--head",
+            source_branch,
+            "--base",
+            target_branch,
+            "--merge",
+            "--delete-branch",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    return (
+        result.stdout + result.stderr
+        if result.returncode != 0
+        else f"PR gemerged: {source_branch} -> {target_branch}"
+    )

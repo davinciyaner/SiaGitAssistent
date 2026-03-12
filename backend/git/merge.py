@@ -5,7 +5,9 @@ def handle_merge(path, target_branch):
     # Aktuellen Branch ermitteln
     current_branch = subprocess.run(
         ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-        cwd=path, capture_output=True, text=True
+        cwd=path,
+        capture_output=True,
+        text=True,
     ).stdout.strip()
 
     if not target_branch:

@@ -1,9 +1,7 @@
 import os
 import subprocess
 
-projects = {
-    "backend": r""
-}
+projects = {"backend": r""}
 
 DEFAULT_CONFIRM = True
 
@@ -42,9 +40,7 @@ def process_input(text, auto_confirm=True):
 def set_remote_with_token(path, remote_url, token):
     token_url = remote_url.replace("https://", f"https://{token}@")
     subprocess.run(
-        ["git", "remote", "set-url", "origin", token_url],
-        cwd=path,
-        check=True
+        ["git", "remote", "set-url", "origin", token_url], cwd=path, check=True
     )
 
 
@@ -55,15 +51,9 @@ def confirm_action(message, auto_confirm=True):
 
 
 def set_remote(path, repo_url, token):
-    url = repo_url.replace(
-        "https://",
-        f"https://{token}@"
-    )
+    url = repo_url.replace("https://", f"https://{token}@")
 
-    subprocess.run(
-        ["git", "remote", "set-url", "origin", url],
-        cwd=path
-    )
+    subprocess.run(["git", "remote", "set-url", "origin", url], cwd=path)
 
 
 def handle_init(path, auto_confirm=True):
@@ -92,14 +82,19 @@ def handle_init_full(path, remote_url=None):
         push_result = handle_push(path)
         remote_add_result = f"Remote mit Token gesetzt: {remote_url}"
 
-    return "\n".join(filter(None, [
-        init_result,
-        gitignore_result,
-        add_result,
-        commit_result,
-        remote_add_result,
-        push_result
-    ]))
+    return "\n".join(
+        filter(
+            None,
+            [
+                init_result,
+                gitignore_result,
+                add_result,
+                commit_result,
+                remote_add_result,
+                push_result,
+            ],
+        )
+    )
 
 
 def handle_gitignore(path):
@@ -122,7 +117,9 @@ def handle_remote_add(path, url):
     env = os.environ.copy()
     env["GIT_TERMINAL_PROMPT"] = "0"
     os.chdir(path)
-    result = subprocess.run(["git", "remote", "add", "origin", url], capture_output=True, text=True)
+    result = subprocess.run(
+        ["git", "remote", "add", "origin", url], capture_output=True, text=True
+    )
     if result.returncode == 0:
         return "Remote erfolgreich hinzugefügt"
     return "Fehler beim Hinzufügen des Remote: " + result.stderr
@@ -136,7 +133,7 @@ def handle_push(path, auto_confirm=True):
         ["git", "rev-parse", "--abbrev-ref", "HEAD"],
         cwd=path,
         capture_output=True,
-        text=True
+        text=True,
     )
     branch = result.stdout.strip()
 
@@ -145,7 +142,7 @@ def handle_push(path, auto_confirm=True):
         cwd=path,
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
     )
 
     if result.returncode == 0:
@@ -158,7 +155,9 @@ def handle_commit(path):
     env["GIT_TERMINAL_PROMPT"] = "0"
     os.chdir(path)
     subprocess.run(["git", "add", "."])
-    result = subprocess.run(["git", "commit", "-m", "Auto commit by SIA"], capture_output=True, text=True)
+    result = subprocess.run(
+        ["git", "commit", "-m", "Auto commit by SIA"], capture_output=True, text=True
+    )
     if result.returncode == 0:
         return "Commit erfolgreich\n" + result.stdout
     return "Commit fehlgeschlagen\n" + result.stderr
@@ -200,7 +199,9 @@ def handle_checkout(text, path):
         index = words.index("checkout") + 1
         branch = words[index] if index < len(words) else ""
         os.chdir(path)
-        result = subprocess.run(["git", "checkout", branch], capture_output=True, text=True)
+        result = subprocess.run(
+            ["git", "checkout", branch], capture_output=True, text=True
+        )
         if result.returncode == 0:
             return f"Branch gewechselt zu {branch}"
         return "Fehler beim Checkout\n" + result.stderr
@@ -220,9 +221,25 @@ def handle_merge_pr(text, path, auto_confirm=True):
         return "Merge abgebrochen"
     os.chdir(path)
     result = subprocess.run(
-        ["gh", "pr", "merge", "--head", source_branch, "--base", target_branch, "--merge", "--delete-branch"],
-        capture_output=True, text=True)
-    return result.stdout + result.stderr if result.returncode != 0 else f"PR gemerged: {source_branch} -> {target_branch}"
+        [
+            "gh",
+            "pr",
+            "merge",
+            "--head",
+            source_branch,
+            "--base",
+            target_branch,
+            "--merge",
+            "--delete-branch",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    return (
+        result.stdout + result.stderr
+        if result.returncode != 0
+        else f"PR gemerged: {source_branch} -> {target_branch}"
+    )
 
 
 def handle_merge(text, path, auto_confirm=True):
@@ -248,14 +265,28 @@ def handle_pull_request(text, path, auto_confirm=True):
         target_branch = words[in_index + 1]
     except:
         return "Format: pr <source_branch> in <target_branch> (projekt)"
-    if not confirm_action(f"PR erstellen {source_branch} -> {target_branch}", auto_confirm):
+    if not confirm_action(
+        f"PR erstellen {source_branch} -> {target_branch}", auto_confirm
+    ):
         return "PR abgebrochen"
     os.chdir(path)
-    result = subprocess.run(["gh", "pr", "create",
-                             "--base", target_branch,
-                             "--head", source_branch,
-                             "--title", f"Merge {source_branch} in {target_branch}",
-                             "--body", "PR created by SIA"], capture_output=True, text=True)
+    result = subprocess.run(
+        [
+            "gh",
+            "pr",
+            "create",
+            "--base",
+            target_branch,
+            "--head",
+            source_branch,
+            "--title",
+            f"Merge {source_branch} in {target_branch}",
+            "--body",
+            "PR created by SIA",
+        ],
+        capture_output=True,
+        text=True,
+    )
     output = result.stdout + result.stderr
     if "already exists" in output:
         return f"PR existiert bereits: {source_branch} -> {target_branch}"
@@ -300,7 +331,12 @@ def handle_project_action(action, text, auto_confirm=True):
             remote_add_result = handle_remote_add(path, remote_url)
             push_result = handle_push(path, auto_confirm)
 
-        return "\n".join(filter(None, [init_result, gitignore_result, add_result, commit_result, push_result]))
+        return "\n".join(
+            filter(
+                None,
+                [init_result, gitignore_result, add_result, commit_result, push_result],
+            )
+        )
 
     for name, path in projects.items():
         if name in text.lower():

@@ -5,7 +5,9 @@ from backend.auth import token_store
 def handle_pull_request(path, target_branch):
     current_branch = subprocess.run(
         ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-        cwd=path, capture_output=True, text=True
+        cwd=path,
+        capture_output=True,
+        text=True,
     ).stdout.strip()
 
     if not token_store.ACCESS_TOKEN:
@@ -16,13 +18,16 @@ def handle_pull_request(path, target_branch):
 
     remote_url_res = subprocess.run(
         ["git", "config", "--get", "remote.origin.url"],
-        cwd=path, capture_output=True, text=True
+        cwd=path,
+        capture_output=True,
+        text=True,
     )
     remote_url = remote_url_res.stdout.strip()
     if not remote_url:
         return "Kein Remote-Repository gefunden"
 
     import re
+
     match = re.search(r"github.com[:/](.+)/(.+)\.git", remote_url)
     if not match:
         return "Repo URL konnte nicht geparst werden"
@@ -34,11 +39,12 @@ def handle_pull_request(path, target_branch):
         "title": f"PR: {current_branch} → {target_branch}",
         "head": current_branch,
         "base": target_branch,
-        "body": f"Automatisch erstellter PR von Branch {current_branch} in {target_branch}"
+        "body": f"Automatisch erstellter PR von Branch {current_branch} in {target_branch}",
     }
 
     try:
         import requests
+
         res = requests.post(url, headers=headers, json=data)
         if res.status_code == 201:
             return f"Pull Request erfolgreich erstellt: {res.json().get('html_url')}"

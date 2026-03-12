@@ -23,16 +23,16 @@ def handle_init(name: str, path: str, remote_url: str = None):
     if remote_url:
         # Existierendes GitHub Repo klonen
         result = subprocess.run(
-            ["git", "clone", remote_url, path],
-            capture_output=True,
-            text=True
+            ["git", "clone", remote_url, path], capture_output=True, text=True
         )
         if result.returncode != 0:
             return f"Fehler beim Klonen von GitHub: {result.stderr}"
         msg = f"Projekt '{name}' erfolgreich von GitHub geklont"
     else:
         # Neues lokales Repo init
-        result = subprocess.run(["git", "init"], cwd=path, capture_output=True, text=True)
+        result = subprocess.run(
+            ["git", "init"], cwd=path, capture_output=True, text=True
+        )
         if result.returncode != 0:
             return f"Fehler beim Initialisieren: {result.stderr}"
         msg = f"Projekt '{name}' erfolgreich initialisiert als Git-Repo"
