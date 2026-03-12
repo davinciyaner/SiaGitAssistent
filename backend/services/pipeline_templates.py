@@ -24,11 +24,11 @@ jobs:
           pip install -r backend/requirements.txt
           pip install pytest flake8
 
-
       - name: Format Check
         run: |
-           pip install black
-           black --check backend
+          pip install black
+          black --check backend
+          
       - name: Lint Code
         run: |
           flake8 backend

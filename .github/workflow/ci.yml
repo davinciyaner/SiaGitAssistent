@@ -33,11 +33,6 @@ jobs:
         run: |
           flake8 backend
 
-      - name: Format Check
-        run: |
-          pip install black
-          black --check backend
-
       - name: Run Tests
         run: |
           pytest backend || true
