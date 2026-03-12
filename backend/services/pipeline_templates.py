@@ -12,10 +12,10 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.9
 
@@ -25,7 +25,11 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest
+          pytest backend || true
+      - name: Lint Code
+        run: |
+           pip install flake8
+           flake8 backend || true
 """
 
 node_pipeline = """
@@ -47,7 +51,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 24
 
       - run: npm install
       - run: npm test

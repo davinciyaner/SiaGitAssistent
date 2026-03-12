@@ -1,6 +1,5 @@
 from backend.config.project_manager import load_projects, save_projects
 from backend.git.checkout import handle_checkout
-from backend.git.init import handle_init
 from backend.git.init_full import handle_init_full
 from backend.git.commit import handle_commit
 from backend.git.add import handle_add

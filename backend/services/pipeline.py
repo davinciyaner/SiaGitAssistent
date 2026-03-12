@@ -4,13 +4,6 @@ import time
 
 import requests
 
-from backend.git.add import handle_add
-from backend.git.commit import handle_commit
-from backend.git.push import handle_push
-from backend.services.pipeline_detector import detect_project_type
-from backend.services.pipeline_generator import generate_pipeline
-from backend.services.pipeline_writer import write_pipeline
-
 
 def run_pipeline(owner, repo, token):
     url = f"https://api.github.com/repos/{owner}/{repo}/actions/workflows/ci.yml/dispatches"
