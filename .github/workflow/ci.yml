@@ -24,9 +24,19 @@ jobs:
           pip install -r backend/requirements.txt
           pip install flake8
 
+      - name: Format Check
+          run: |
+          pip install black
+          black --check backend
+
       - name: Lint Code
         run: |
           flake8 backend
+
+      - name: Format Check
+        run: |
+          pip install black
+          black --check backend
 
       - name: Run Tests
         run: |
