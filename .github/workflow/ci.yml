@@ -25,7 +25,7 @@ jobs:
           pip install flake8
 
       - name: Format Check
-          run: |
+        run: |
           pip install black
           black --check backend
 
