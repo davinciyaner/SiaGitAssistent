@@ -12,6 +12,7 @@ from backend.auth import token_store
 from backend.config.project_manager import save_projects
 
 from backend.process.ProcessInput import projects
+from backend.services.git_service import GitHubService
 
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 loaded = load_dotenv(dotenv_path)
@@ -19,6 +20,7 @@ loaded = load_dotenv(dotenv_path)
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
 ACCESS_TOKEN = None
+
 
 app = FastAPI()
 
@@ -87,3 +89,20 @@ def get_projects():
 @app.get("/ai-analyze")
 def ai_analyze(repo_url: str):
     return ai_analyze_repo(repo_url)
+
+def get_github_service():
+    token = token_store.ACCESS_TOKEN
+    if not token:
+        raise HTTPException(status_code=401, detail="GitHub Token fehlt")
+    return GitHubService(token)
+
+
+@router.get("/ci/runs")
+def workflow_runs(repo_full_name: str, workflow_name: str = None, limit: int = 5):
+    github = get_github_service()
+    return github.latest_workflow_runs(repo_full_name, workflow_name, limit)
+
+@router.get("/ci/logs")
+def workflow_logs(repo_full_name: str, run_id: int):
+    github = get_github_service()
+    return github.get_run_logs(repo_full_name, run_id)

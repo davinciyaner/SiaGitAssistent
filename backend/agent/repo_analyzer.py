@@ -7,15 +7,10 @@ from backend.services.git_service import clone_repo
 
 load_dotenv()
 
-# OpenAI Client initialisieren
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 def read_files_for_ai(repo_path: str, max_files: int = 10, max_chars: int = 2000):
-    """
-    Liest die wichtigsten Dateien eines Repos ein, begrenzt auf max_files Dateien
-    und max_chars pro Datei, um den Prompt klein zu halten.
-    """
     content = []
     for root, dirs, files in os.walk(repo_path):
         for file in files[:max_files]:
@@ -70,3 +65,29 @@ Repository Inhalt:
 
     except Exception as e:
         return {"error": "Unerwarteter Fehler", "details": str(e)}
+
+def ai_explain_log(log_text: str):
+    prompt = f"""
+    Du bist ein DevOps AI Agent.
+    Analysiere folgende CI/CD Fehlermeldung und erkläre:
+    - Was ist das Problem?
+    - Welche Module oder Pakete fehlen ggf.?
+    - Welche Lösungsvorschläge gibt es?
+
+    Log:
+    {log_text}
+
+    Gib die Antwort als JSON zurück mit Feldern:
+    'problem', 'missing_modules', 'solution'
+    """
+    response = client.chat.completions.create(
+        model="gpt-5.4",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0
+    )
+    import json
+    ai_output = response.choices[0].message.content
+    try:
+        return json.loads(ai_output)
+    except json.JSONDecodeError:
+        return {"error": "AI output konnte nicht geparst werden", "raw": ai_output}
