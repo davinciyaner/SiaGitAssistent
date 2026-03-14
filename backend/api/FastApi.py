@@ -86,9 +86,11 @@ def register_project(project: Project):
 def get_projects():
     return {"projects": projects}
 
+
 @app.get("/ai-analyze")
 def ai_analyze(repo_url: str):
     return ai_analyze_repo(repo_url)
+
 
 def get_github_service():
     token = token_store.ACCESS_TOKEN
@@ -101,6 +103,7 @@ def get_github_service():
 def workflow_runs(repo_full_name: str, workflow_name: str = None, limit: int = 5):
     github = get_github_service()
     return github.latest_workflow_runs(repo_full_name, workflow_name, limit)
+
 
 @router.get("/ci/logs")
 def workflow_logs(repo_full_name: str, run_id: int):

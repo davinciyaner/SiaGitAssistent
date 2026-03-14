@@ -47,7 +47,7 @@ Repository Inhalt:
         response = client.chat.completions.create(
             model="gpt-5.4",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0
+            temperature=0,
         )
 
         ai_output = response.choices[0].message.content  # <-- wichtig!
@@ -66,6 +66,7 @@ Repository Inhalt:
     except Exception as e:
         return {"error": "Unerwarteter Fehler", "details": str(e)}
 
+
 def ai_explain_log(log_text: str):
     prompt = f"""
     Du bist ein DevOps AI Agent.
@@ -81,11 +82,10 @@ def ai_explain_log(log_text: str):
     'problem', 'missing_modules', 'solution'
     """
     response = client.chat.completions.create(
-        model="gpt-5.4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0
+        model="gpt-5.4", messages=[{"role": "user", "content": prompt}], temperature=0
     )
     import json
+
     ai_output = response.choices[0].message.content
     try:
         return json.loads(ai_output)

@@ -23,7 +23,6 @@ class GitHubService:
 
         return res.json()
 
-
     def get_repo(self, full_name: str):
         """Liefert ein Repository-Objekt"""
         return self.client.get_repo(full_name)
@@ -40,7 +39,12 @@ class GitHubService:
         repo = self.get_repo(repo_full_name)
         prs = repo.get_pulls(state=state)
         return [
-            {"number": pr.number, "title": pr.title, "state": pr.state, "url": pr.html_url}
+            {
+                "number": pr.number,
+                "title": pr.title,
+                "state": pr.state,
+                "url": pr.html_url,
+            }
             for pr in list(prs)[:limit]
         ]
 
@@ -68,15 +72,26 @@ class GitHubService:
         res = httpx.get(url, headers=self.headers, timeout=10)
 
         if res.status_code == 404:
-            raise HTTPException(status_code=404, detail="Repo oder Workflows nicht gefunden")
+            raise HTTPException(
+                status_code=404, detail="Repo oder Workflows nicht gefunden"
+            )
         if res.status_code != 200:
             raise HTTPException(status_code=res.status_code, detail=res.text)
 
         data = res.json()
-        return [{"id": wf["id"], "name": wf["name"], "path": wf["path"], "state": wf["state"]}
-                for wf in data.get("workflows", [])]
+        return [
+            {
+                "id": wf["id"],
+                "name": wf["name"],
+                "path": wf["path"],
+                "state": wf["state"],
+            }
+            for wf in data.get("workflows", [])
+        ]
 
-    def latest_workflow_runs(self, repo_full_name: str, workflow_id: int = None, limit: int = 5):
+    def latest_workflow_runs(
+        self, repo_full_name: str, workflow_id: int = None, limit: int = 5
+    ):
         url = f"https://api.github.com/repos/{repo_full_name}/actions/runs?per_page={limit}"
         if workflow_id:
             url = f"https://api.github.com/repos/{repo_full_name}/actions/workflows/{workflow_id}/runs?per_page={limit}"
@@ -89,12 +104,18 @@ class GitHubService:
         return data.get("workflow_runs", [])
 
     def get_run_logs(self, repo_full_name: str, run_id: int):
-        url = f"https://api.github.com/repos/{repo_full_name}/actions/runs/{run_id}/logs"
+        url = (
+            f"https://api.github.com/repos/{repo_full_name}/actions/runs/{run_id}/logs"
+        )
         res = httpx.get(url, headers=self.headers, timeout=20)
         if res.status_code != 200:
-            raise HTTPException(status_code=res.status_code, detail="Logs konnten nicht abgerufen werden")
+            raise HTTPException(
+                status_code=res.status_code,
+                detail="Logs konnten nicht abgerufen werden",
+            )
         # GitHub liefert ZIP-Datei; hier nur URL zurück
         return {"logs_url": url}
+
 
 def get_run_logs(self, repo_full_name: str, run_id: int):
     repo = self.get_repo(repo_full_name)
