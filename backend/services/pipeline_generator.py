@@ -1,4 +1,4 @@
-from backend.services.pipeline_templates import python_pipeline, node_pipeline
+from backend.services.pipeline_templates import node_pipeline, python_pipeline
 
 
 def generate_pipeline(project_type):

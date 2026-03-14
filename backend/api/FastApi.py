@@ -1,5 +1,6 @@
-import httpx
 import os
+
+import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +11,6 @@ from backend.agent.repo_analyzer import ai_analyze_repo
 from backend.api.routes import router
 from backend.auth import token_store
 from backend.config.project_manager import save_projects
-
 from backend.process.ProcessInput import projects
 from backend.services.git_service import GitHubService
 

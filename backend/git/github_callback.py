@@ -1,7 +1,7 @@
 import httpx
 from starlette.responses import RedirectResponse
 
-from backend.git.github_login import CLIENT_SECRET, CLIENT_ID
+from backend.git.github_login import CLIENT_ID, CLIENT_SECRET
 
 
 @app.get("/auth/github/callback")

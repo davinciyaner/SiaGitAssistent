@@ -1,19 +1,15 @@
 from backend.config.project_manager import load_projects, save_projects
-from backend.git.checkout import handle_checkout
-from backend.git.init_full import handle_init_full
-from backend.git.commit import handle_commit
 from backend.git.add import handle_add
-from backend.git.status import handle_status
-from backend.git.push import handle_push
 from backend.git.branch import handle_branch
+from backend.git.checkout import handle_checkout
+from backend.git.commit import handle_commit
+from backend.git.init_full import handle_init_full
 from backend.git.merge_pullrequest import handle_merge_pr
-from backend.services.pipeline import (
-    run_pipeline,
-    get_pipeline_logs,
-    get_pipeline_status,
-    auto_pipeline,
-    create_pipeline,
-)
+from backend.git.push import handle_push
+from backend.git.status import handle_status
+from backend.services.pipeline import (auto_pipeline, create_pipeline,
+                                       get_pipeline_logs, get_pipeline_status,
+                                       run_pipeline)
 
 
 def process_input(command_text: str, project_path: str = None, token: str = None):

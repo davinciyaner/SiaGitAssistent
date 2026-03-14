@@ -1,6 +1,7 @@
-from backend.config.project_manager import load_projects, save_projects
-import subprocess
 import os
+import subprocess
+
+from backend.config.project_manager import load_projects, save_projects
 
 
 def handle_init(name: str, path: str, remote_url: str = None):
