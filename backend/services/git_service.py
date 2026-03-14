@@ -1,7 +1,7 @@
-import httpx
-import subprocess
 import os
+import subprocess
 
+import httpx
 from fastapi import HTTPException
 from github import Github
 

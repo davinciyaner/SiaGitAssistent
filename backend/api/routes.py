@@ -2,8 +2,8 @@ import io
 import os
 import subprocess
 import zipfile
-import requests
 
+import requests
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
 
@@ -198,7 +198,12 @@ def ci_last_run(repo_full_name: str, repo_local_path: str = None):
     # --- Optional: Logs herunterladen & AI-Analyse ---
     if repo_local_path:
         # Wenn du lokal geclont hast, AI-Analyse möglich
-        import requests, zipfile, io, os, subprocess
+        import io
+        import os
+        import subprocess
+        import zipfile
+
+        import requests
 
         logs_url = github.get_run_logs(repo_full_name, run_id)["logs_url"]
 
@@ -294,25 +299,32 @@ def fix_last_run(repo_full_name: str, repo_local_path: str = None):
 
 
 @router.get("/ci/full-auto-fix")
-def ci_full_auto_fix(
-    repo_full_name: str,
-    repo_local_path: str,
-    git_user_name: str = "SiaAgent",
-    git_user_email: str = "sia@local.dev",
-):
+def ci_full_auto_fix(repo_full_name: str, repo_local_path: str):
     """
-    1️⃣ Nimmt den letzten fehlgeschlagenen Workflow-Run
-    2️⃣ Lädt Logs herunter
-    3️⃣ Analysiert Fehler via AI
-    4️⃣ Fix: fehlende Python-Module installieren + Black-Formatierung
-    5️⃣ Commit & Push der Korrekturen
+    1️⃣ Letzten fehlgeschlagenen Workflow-Run abrufen
+    2️⃣ Logs herunterladen & AI-Analyse durchführen
+    3️⃣ Black-Formatierung ausführen
+    4️⃣ isort ausführen, um multiple imports (E401) zu fixen
+    5️⃣ Änderungen committen & pushen
     """
-    github = get_github_service()
+
+    import io
+    import os
+    import subprocess
+    import zipfile
+
+    import requests
+    from fastapi import HTTPException
+
+    from backend.agent.repo_analyzer import ai_explain_log
+    from backend.auth import token_store
+    from backend.services.git_service import GitHubService
+
+    github = GitHubService(token_store.ACCESS_TOKEN)
 
     # --- Letzten fehlgeschlagenen Run abrufen ---
     runs = github.latest_workflow_runs(repo_full_name, limit=10)
     failed_run = next((r for r in runs if r.get("conclusion") == "failure"), None)
-
     if not failed_run:
         return {"message": "Keine fehlgeschlagenen Runs gefunden."}
 
@@ -321,62 +333,50 @@ def ci_full_auto_fix(
     html_url = failed_run["html_url"]
 
     # --- Logs herunterladen ---
-    logs_url = (
-        f"https://api.github.com/repos/{repo_full_name}/actions/runs/{run_id}/logs"
-    )
+    logs_url = f"https://api.github.com/repos/{repo_full_name}/actions/runs/{run_id}/logs"
     headers = {"Authorization": f"token {token_store.ACCESS_TOKEN}"}
     r = requests.get(logs_url, headers=headers, stream=True)
     if r.status_code != 200:
-        raise HTTPException(
-            status_code=r.status_code,
-            detail=f"Logs konnten nicht heruntergeladen werden: {r.text}",
-        )
+        raise HTTPException(status_code=r.status_code,
+                            detail=f"Logs konnten nicht heruntergeladen werden: {r.text}")
 
     z = zipfile.ZipFile(io.BytesIO(r.content))
     logs_text = ""
     for file_name in z.namelist():
-        try:
-            logs_text += z.read(file_name).decode("utf-8") + "\n---\n"
-        except Exception:
-            continue
+        logs_text += z.read(file_name).decode("utf-8") + "\n---\n"
 
     # --- AI-Analyse ---
     ai_result = ai_explain_log(logs_text)
 
     # --- Lokaler Fix ---
-    fixed_files = []
+    if not os.path.exists(repo_local_path):
+        raise HTTPException(status_code=400, detail=f"repo_local_path '{repo_local_path}' existiert nicht.")
     os.chdir(repo_local_path)
 
-    # 1️⃣ Fehlende Python-Module installieren
-    for module in ai_result.get("missing_modules", []):
-        if "keine Python-Module" not in module.lower():
-            subprocess.run(["pip", "install", module], check=False)
+    fixed_files = []
 
-    # 2️⃣ Black-Formatierung bei Fehlern
-    problem_texts = ai_result.get("problem", [])
-    black_files = []
-
-    for line in problem_texts:
-        if ".py" in line:
-            # Zeile kann mehrere Dateien enthalten, getrennt durch Komma
-            parts = [p.strip().replace("`", "").lstrip("-") for p in line.split(",")]
-            for p in parts:
-                if os.path.exists(p):
-                    black_files.append(p)
-
+    # 1️⃣ Black ausführen
+    black_files = [f for f in ai_result.get("problem", []) if f.endswith(".py")]
     if black_files:
         subprocess.run(["black"] + black_files, check=False)
-        fixed_files = black_files
+        fixed_files += black_files
 
-    # 3️⃣ Git commit & push der Änderungen
+    # 2️⃣ isort ausführen für E401 Fix
+    try:
+        subprocess.run(["isort", "backend"], check=False)
+        # alle Python-Dateien in backend zählen
+        for root, dirs, files in os.walk("backend"):
+            for f in files:
+                if f.endswith(".py") and f not in fixed_files:
+                    fixed_files.append(os.path.join(root, f))
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="isort ist nicht installiert. Bitte 'pip install isort' ausführen.")
+
+    # 3️⃣ Git add / commit / push
     if fixed_files:
-        subprocess.run(["git", "config", "user.name", git_user_name], check=False)
-        subprocess.run(["git", "config", "user.email", git_user_email], check=False)
         subprocess.run(["git", "add"] + fixed_files, check=False)
-        subprocess.run(
-            ["git", "commit", "-m", f"Auto-formatierung: {', '.join(fixed_files)}"],
-            check=False,
-        )
+        commit_msg = f"Automatische Fixes: Black + isort für CI-Run {run_id}"
+        subprocess.run(["git", "commit", "-m", commit_msg], check=False)
         subprocess.run(["git", "push"], check=False)
 
     return {
@@ -386,5 +386,6 @@ def ci_full_auto_fix(
         "logs_url": logs_url,
         "ai_analysis": ai_result,
         "fixed_files": fixed_files,
-        "message": f"{len(fixed_files)} Dateien automatisch formatiert; fehlende Module ggf. installiert und Änderungen gepusht",
+        "message": f"{len(fixed_files)} Dateien automatisch formatiert/fixiert und gepusht"
     }
+

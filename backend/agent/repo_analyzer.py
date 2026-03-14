@@ -1,8 +1,9 @@
-import os
 import json
+import os
 
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
+
 from backend.services.git_service import clone_repo
 
 load_dotenv()
