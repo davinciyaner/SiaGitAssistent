@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
+from backend.agent.repo_analyzer import ai_analyze_repo
 from backend.api.routes import router
 from backend.auth import token_store
 from backend.config.project_manager import save_projects
@@ -82,3 +83,7 @@ def register_project(project: Project):
 @app.get("/projects")
 def get_projects():
     return {"projects": projects}
+
+@app.get("/ai-analyze")
+def ai_analyze(repo_url: str):
+    return ai_analyze_repo(repo_url)

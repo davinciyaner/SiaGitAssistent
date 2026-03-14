@@ -1,4 +1,6 @@
 import httpx
+import subprocess
+import os
 
 
 class GitHubService:
@@ -15,3 +17,17 @@ class GitHubService:
         )
 
         return res.json()
+
+
+def clone_repo(repo_url: str, target_dir: str = "repos"):
+    os.makedirs(target_dir, exist_ok=True)
+
+    repo_name = repo_url.split("/")[-1].replace(".git", "")
+    repo_path = os.path.join(target_dir, repo_name)
+
+    if os.path.exists(repo_path):
+        return repo_path
+
+    subprocess.run(["git", "clone", repo_url, repo_path], check=True)
+
+    return repo_path
