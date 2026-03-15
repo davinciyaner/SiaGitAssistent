@@ -344,9 +344,7 @@ def ci_full_auto_fix(
     headers = {"Authorization": f"token {token_store.ACCESS_TOKEN}"}
 
     try:
-        run_url = (
-            f"https://api.github.com/repos/{repo_full_name}/actions/runs/{run_id}"
-        )
+        run_url = f"https://api.github.com/repos/{repo_full_name}/actions/runs/{run_id}"
         res = requests.get(run_url, headers=headers)
         res.raise_for_status()
         run = res.json()
