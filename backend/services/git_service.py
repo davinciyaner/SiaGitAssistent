@@ -13,7 +13,7 @@ class GitHubService:
         self.headers = {"Authorization": f"token {self.token}"}
 
     def create_repo(self, name):
-        headers = {"Authorization": f"token: {self.token}"}
+        headers = {"Authorization": f"token {self.token}"}
 
         data = {"name": name, "private": False}
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState} from "react";
 
 function App() {
 
@@ -16,11 +16,16 @@ function App() {
 
             const res = await fetch("http://localhost:8001/command", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ command }),
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({command}),
             });
 
             const data = await res.json();
+            if (typeof data === "object") {
+                setOutput(JSON.stringify(data, null, 2));
+            } else {
+                setOutput(data);
+            }
             setOutput(data.output);
 
         } catch (err) {

@@ -80,7 +80,8 @@ def ai_explain_log(log_text: str):
     {log_text}
 
     Gib die Antwort als JSON zurück mit Feldern:
-    'problem', 'missing_modules', 'solution'
+    'problem', 'missing_modules', 'solution',
+    'needs_black_format' (bool), 'files_to_format' (list of file path)
     """
     response = client.chat.completions.create(
         model="gpt-5.4", messages=[{"role": "user", "content": prompt}], temperature=0
