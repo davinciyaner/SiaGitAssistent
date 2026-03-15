@@ -8,25 +8,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    permissions:           # ← neu
+      contents: write      # ← erlaubt git push
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # braucht man für git push
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
-      - name: Install Tools          # ← ERST installieren
+      - name: Install Tools
         run: pip install black isort flake8 pytest
 
       - name: Install Dependencies
         run: pip install -r backend/requirements.txt
 
-      - name: Auto-format with black  # ← DANN formatieren
+      - name: Auto-format with black
         run: |
           black .
           git config user.name "github-actions[bot]"
