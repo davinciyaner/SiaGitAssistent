@@ -3,45 +3,41 @@ name: DevOpsAgent CI
 on:
   push:
     branches: [ master ]
-    
   workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}  # braucht man für git push
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
-      - name: Auto-format with black
+
+      - name: Install Tools          # ← ERST installieren
+        run: pip install black isort flake8 pytest
+
+      - name: Install Dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Auto-format with black  # ← DANN formatieren
         run: |
           black .
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git diff --quiet || (git add -A && git commit -m "style: auto-format with black" && git push)
 
-      - name: Install Dependencies
-        run: |
-          pip install -r backend/requirements.txt
-          pip install pytest
-
       - name: Format Check
-        run: |
-          pip install black
-          black --check backend
+        run: black --check backend
 
       - name: Lint Code
-        run: |
-          pip install flake8
-          flake8 backend
+        run: flake8 backend
 
       - name: Run Tests
-        run: |
-          pytest backend || true
+        run: pytest backend || true
